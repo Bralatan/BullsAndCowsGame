@@ -12,8 +12,7 @@ namespace BullsAndCowsGame.UnitTests
     public class GameTests
     {
         //private readonly object _config = ConfigLoader.LoadConfig("config.json");
-        private GameInteractorFake _gameInteractorFake;
-
+        private Game _game;
         public GameTests() 
         {
 
@@ -23,22 +22,61 @@ namespace BullsAndCowsGame.UnitTests
         public void ShouldGenerateRiddleTypeOfString()
         {
             IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
-            _gameInteractorFake = new GameInteractorFake(riddleProviderFactory);
+            _game = new Game(riddleProviderFactory);
 
-            var result = _gameInteractorFake.SetValue();
+            var riddle = _game.SetValue();
 
-            Assert.IsType<string>(result);
+            Assert.IsType<string>(riddle);
         }
 
         [Fact]
         public void ShouldGenerateRiddleWithSpecificLength()
         {
             IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
-            _gameInteractorFake = new GameInteractorFake(riddleProviderFactory);
+            _game = new Game(riddleProviderFactory);
 
-            var result = _gameInteractorFake.SetValue();
+            var riddle = _game.SetValue();
 
-            Assert.Equal(4, result.Length);
+            Assert.Equal(4, riddle.Length);
+        }
+
+        [Fact]
+        public void ShouldReturnAnErrorIfGuessIsOutOfRange()
+        {
+            IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
+            _game = new Game(riddleProviderFactory);
+
+            var riddle = _game.SetValue();
+            var result = _game.Play("35", 4);
+
+            Assert.True(result.Error.IsError);
+            Assert.Contains(result.Error.Message, "Your guess '35' is out of range. Please enter guess with length - 4");
+        }
+
+        [Fact]
+        public void ShouldReturnAnErrorIfGuessIsEmpty()
+        {
+            IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
+            _game = new Game(riddleProviderFactory);
+
+            var riddle = _game.SetValue();
+            var result = _game.Play("", 4);
+
+            Assert.True(result.Error.IsError);
+            Assert.Contains(result.Error.Message, "Your guess is empty. Please enter your guess with length - 4");
+        }
+
+        [Fact]
+        public void ShouldReturnAnErrorIfGuessIsNull()
+        {
+            IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
+            _game = new Game(riddleProviderFactory);
+
+            var riddle = _game.SetValue();
+            var result = _game.Play(null, 4);
+
+            Assert.True(result.Error.IsError);
+            Assert.Contains(result.Error.Message, "Your guess is NULL. Please enter your guess with length - 4");
         }
     }
 }
