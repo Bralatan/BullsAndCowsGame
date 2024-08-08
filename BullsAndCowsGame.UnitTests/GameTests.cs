@@ -1,8 +1,9 @@
 using BullsAndCowsGame.Core;
 using BullsAndCowsGame.Core.Config;
+using BullsAndCowsGame.Core.Exceptions;
 using BullsAndCowsGame.Core.Factories;
 using BullsAndCowsGame.Core.Factories.Interfaces;
-using BullsAndCowsGame.UnitTests.Helpers;
+using BullsAndCowsGame.Core.Models.Interfaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using System.Text.RegularExpressions;
@@ -11,72 +12,64 @@ namespace BullsAndCowsGame.UnitTests
 {
     public class GameTests
     {
-        //private readonly object _config = ConfigLoader.LoadConfig("config.json");
         private Game _game;
-        public GameTests() 
+        private IRiddleProvider _riddleProvider;
+        public GameTests()
         {
-
+            _riddleProvider = new RiddleProviderFactory("number", 4).CreateRiddleProvider();
+            _game = new Game(_riddleProvider);
         }
 
         [Fact]
         public void ShouldGenerateRiddleTypeOfString()
         {
-            IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
-            _game = new Game(riddleProviderFactory);
-
-            var riddle = _game.SetValue();
-
-            Assert.IsType<string>(riddle);
+            Assert.IsType<string>(_game.Riddle);
         }
 
         [Fact]
         public void ShouldGenerateRiddleWithSpecificLength()
         {
-            IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
-            _game = new Game(riddleProviderFactory);
-
-            var riddle = _game.SetValue();
-
-            Assert.Equal(4, riddle.Length);
+            Assert.Equal(4, _game.Riddle.Length);
         }
 
         [Fact]
-        public void ShouldReturnAnErrorIfGuessIsOutOfRange()
+        public void ShouldThrowAnErrorIfGuessIsOutOfRange()
         {
-            IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
-            _game = new Game(riddleProviderFactory);
-
-            var riddle = _game.SetValue();
-            var result = _game.Play("35", 4);
-
-            Assert.True(result.Error.IsError);
-            Assert.Contains(result.Error.Message, "Your guess '35' is out of range. Please enter guess with length - 4");
+            Assert.Throws<InputOutOfRangeException>(() => _game.Play("35"));
         }
 
         [Fact]
-        public void ShouldReturnAnErrorIfGuessIsEmpty()
+        public void ShouldThrowAnErrorIfGuessIsEmpty()
         {
-            IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
-            _game = new Game(riddleProviderFactory);
-
-            var riddle = _game.SetValue();
-            var result = _game.Play("", 4);
-
-            Assert.True(result.Error.IsError);
-            Assert.Contains(result.Error.Message, "Your guess is empty. Please enter your guess with length - 4");
+            Assert.Throws<InputIsEmptyException>(() => _game.Play(""));
         }
 
         [Fact]
-        public void ShouldReturnAnErrorIfGuessIsNull()
+        public void ShouldThrowAnErrorIfGuessIsNull()
         {
-            IRiddleProviderFactory riddleProviderFactory = new NumberRiddleProviderFactory(4);
-            _game = new Game(riddleProviderFactory);
+            Assert.Throws<InputIsNullException>(() => _game.Play(null));
+        }
 
-            var riddle = _game.SetValue();
-            var result = _game.Play(null, 4);
+        [Fact]
+        public void ShouldReturnGameResultWithCountOfCowsAndBulls()
+        {
+            _game.Riddle = "1256";
+            var gameResult = _game.Play("1265");
 
-            Assert.True(result.Error.IsError);
-            Assert.Contains(result.Error.Message, "Your guess is NULL. Please enter your guess with length - 4");
+            Assert.False(gameResult.IsFinished);
+            Assert.Equal(2, gameResult.Cows);
+            Assert.Equal(2, gameResult.Bulls);
+        }
+
+        [Fact]
+        public void ShouldReturnGameResultWithCountOfBullsAndCowsAndFinishTheGame()
+        {
+            _game.Riddle = "1234";
+            var gameResult = _game.Play("1234");
+            
+            Assert.True(gameResult.IsFinished);
+            Assert.Equal(_game.Riddle.Length, gameResult.InputValue.Length);
+            Assert.Equal(_game.Riddle.Length, gameResult.Bulls);
         }
     }
 }

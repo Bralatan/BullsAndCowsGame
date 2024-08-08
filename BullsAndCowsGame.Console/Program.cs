@@ -2,6 +2,7 @@
 using BullsAndCowsGame.Core.Config;
 using BullsAndCowsGame.Core.Factories;
 using BullsAndCowsGame.Core.Factories.Interfaces;
+using BullsAndCowsGame.Core.Models.Interfaces;
 
 class Program
 {
@@ -9,39 +10,33 @@ class Program
     {
         var config = ConfigLoader.LoadConfig("..\\..\\..\\..\\BullsAndCowsGame.Core\\Config\\config.json");
 
-        IRiddleProviderFactory riddleProviderFactory;
+        IRiddleProvider riddleProvider = new RiddleProviderFactory(config.RiddleType, config.RiddleLength).CreateRiddleProvider();
 
-        if (config.riddleType.Equals("number", StringComparison.OrdinalIgnoreCase))
-        {
-            riddleProviderFactory = new NumberRiddleProviderFactory(config.riddleLength);
-        }
-        else
-        {
-            throw new InvalidOperationException("Invalid type of riddle.");
-        }
 
-        Game game = new Game(riddleProviderFactory);
-        game.SetValue();
+        Game game = new Game(riddleProvider);
 
         while (true) 
         {
             Console.Write("Enter your guess: ");
             string guess = Console.ReadLine();
 
-            GameResult gameResult = game.Play(guess, config.riddleLength);
+            try
+            {
+                GameResult gameResult = game.Play(guess);
 
-            if (gameResult.Error != null && gameResult.Error.IsError)
-            {
-                Console.WriteLine(gameResult.Error.Message);
+                if (gameResult.IsFinished)
+                {
+                    Console.WriteLine("Congratulations! You've guessed the riddle!");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine($"Your guess: {gameResult.InputValue}, you find {gameResult.Cows} cows, you find {gameResult.Bulls} bulls");
+                }
             }
-            else if (gameResult.IsFinished) 
+            catch (Exception ex)
             {
-                Console.WriteLine("Congratulations! You've guessed the riddle!");
-                break;
-            } 
-            else
-            {
-                Console.WriteLine($"Your guess: {gameResult.InputValue}, you find {gameResult.Cows} cows, you find {gameResult.Bulls} bulls");
+                Console.WriteLine(ex.Message);
             }
         }
     }

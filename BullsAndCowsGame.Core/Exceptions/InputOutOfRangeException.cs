@@ -1,7 +1,7 @@
 ﻿namespace BullsAndCowsGame.Core.Exceptions
 {
     [Serializable]
-    public class InputOutOfRangeException : BullsAndCowsGameException
+    public class InputOutOfRangeException : Exception
     {
         public InputOutOfRangeException()
         {

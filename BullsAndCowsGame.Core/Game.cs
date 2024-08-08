@@ -7,46 +7,33 @@ namespace BullsAndCowsGame.Core
 {
     public class Game
     {
-        private string _riddle;
-        private readonly IRiddleProviderFactory _riddleProviderFactory;
+        public string Riddle { get; set; }
+        private readonly IRiddleProvider _riddleProvider;
+        private int _riddleLength;
 
-        public Game(IRiddleProviderFactory riddleProviderFactory)
+        public Game(IRiddleProvider riddleProvider)
         {
-            _riddleProviderFactory = riddleProviderFactory;
+            _riddleProvider = riddleProvider;
+            Riddle = _riddleProvider.GenerateRiddle();
+            _riddleLength = Riddle.Length;
         }
 
-        public string SetValue()
-        {
-            IRiddleProvider riddleProvider = _riddleProviderFactory.CreateRiddleProvider();
-
-            return _riddle = riddleProvider.GenerateRiddle();
-        }
-
-        public GameResult Play(string userInput, int riddleLength)
+        public GameResult Play(string userInput)
         {
 
             if (userInput == "")
             {
-                return new GameResult
-                {
-                    Error = new InputIsEmptyException(riddleLength)
-                };
+                throw new InputIsEmptyException(_riddleLength);
             }
 
             if (userInput == null)
             {
-                return new GameResult
-                {
-                    Error = new InputIsNullException(riddleLength)
-                };
+                throw new InputIsNullException(_riddleLength);
             }
 
-            if (userInput.Length != riddleLength) 
+            if (userInput.Length != _riddleLength) 
             {
-                return new GameResult
-                {
-                    Error = new InputOutOfRangeException(userInput, riddleLength)
-                };
+                throw new InputOutOfRangeException(userInput, _riddleLength);
             }
 
             return new GameResult 
@@ -63,7 +50,7 @@ namespace BullsAndCowsGame.Core
 
             for (int i = 0; i < userInput.Length; i++)
             {
-                if (userInput[i] == _riddle[i])
+                if (userInput[i] == Riddle[i])
                 {
                     count++;
                 }
@@ -78,7 +65,7 @@ namespace BullsAndCowsGame.Core
 
             for (int i = 0; i < userInput.Length; i++)
             {
-                if (_riddle.Contains(userInput[i]) && userInput[i] != _riddle[i])
+                if (Riddle.Contains(userInput[i]) && userInput[i] != Riddle[i])
                 {
                     count++;
                 }

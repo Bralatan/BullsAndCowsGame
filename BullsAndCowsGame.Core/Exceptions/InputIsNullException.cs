@@ -1,6 +1,6 @@
 ﻿namespace BullsAndCowsGame.Core.Exceptions
 {
-    public class InputIsNullException : BullsAndCowsGameException
+    public class InputIsNullException : Exception
     {
         public InputIsNullException()
         {

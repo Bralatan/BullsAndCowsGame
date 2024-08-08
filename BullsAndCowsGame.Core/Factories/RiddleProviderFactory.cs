@@ -9,18 +9,25 @@ using System.Threading.Tasks;
 
 namespace BullsAndCowsGame.Core.Factories
 {
-    public class NumberRiddleProviderFactory : IRiddleProviderFactory
+    public class RiddleProviderFactory : IRiddleProviderFactory
     {
         private int _length;
+        private string _type;
 
-        public NumberRiddleProviderFactory(int length)
+        public RiddleProviderFactory(string type, int length)
         {
+            _type = type;
             _length = length;
         }
 
         public IRiddleProvider CreateRiddleProvider()
         {
-            return new NumberRiddleProvider(_length);
+            return _type switch
+            {
+                "number" => new NumberRiddleProvider(_length),
+                "string" => new StringRiddleProvider(_length),
+                _ => throw new ArgumentException()
+            };
         }
     }
 }

@@ -4,10 +4,9 @@ namespace BullsAndCowsGame.Core
 {
     public class GameResult
     {
-        public string InputValue { get; set; }
+        public string? InputValue { get; set; }
         public int Bulls { get; set; }
         public int Cows { get; set; }
-        public BullsAndCowsGameException Error { get; set; }
         public bool IsFinished 
         {
             get
