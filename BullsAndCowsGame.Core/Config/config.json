@@ -1,0 +1,5 @@
+﻿{
+  "RiddleType": "realWord",
+  "RiddleLength": 4,
+  "ConnectionString": "Data Source=(localdb)\\URLessDB;Initial Catalog=BullsAndCowsGame;Integrated Security=True;Connect Timeout=30;Encrypt=False;"
+}
