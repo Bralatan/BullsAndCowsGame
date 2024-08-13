@@ -9,7 +9,8 @@ namespace BullsAndCowsGame.Core.Config
 {
     public class GameConfig
     {
-        public string RiddleType { get; set; }
-        public int RiddleLength { get; set; }
+        public string RiddleType { get; init; }
+        public int RiddleLength { get; init; }
+        public string ConnectionString { get; init; }
     }
 }

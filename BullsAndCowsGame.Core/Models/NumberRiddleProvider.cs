@@ -9,7 +9,7 @@ namespace BullsAndCowsGame.Core.Models
 {
     public class NumberRiddleProvider : IRiddleProvider
     {
-        private int _length;
+        private readonly int _length;
 
         public NumberRiddleProvider(int length)
         {

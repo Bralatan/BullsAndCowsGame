@@ -3,6 +3,7 @@ using BullsAndCowsGame.Core.Config;
 using BullsAndCowsGame.Core.Exceptions;
 using BullsAndCowsGame.Core.Factories;
 using BullsAndCowsGame.Core.Factories.Interfaces;
+using BullsAndCowsGame.Core.Models;
 using BullsAndCowsGame.Core.Models.Interfaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
@@ -16,7 +17,7 @@ namespace BullsAndCowsGame.UnitTests
         private IRiddleProvider _riddleProvider;
         public GameTests()
         {
-            _riddleProvider = new RiddleProviderFactory("number", 4).CreateRiddleProvider();
+            _riddleProvider = new RiddleProviderFactory("number", 4, "").CreateRiddleProvider();
             _game = new Game(_riddleProvider);
         }
 
@@ -70,6 +71,53 @@ namespace BullsAndCowsGame.UnitTests
             Assert.True(gameResult.IsFinished);
             Assert.Equal(_game.Riddle.Length, gameResult.InputValue.Length);
             Assert.Equal(_game.Riddle.Length, gameResult.Bulls);
+        }
+
+        [Fact]
+        public void ShouldReturnRiddleWithNumbersIfRiddleTypeIsNumber()
+        {
+            string RiddleRegex = "^[0-9]{4}$";
+
+            Assert.True(Regex.Match(_game.Riddle, RiddleRegex).Success, $"Riddle {_game.Riddle} does not match regex {RiddleRegex}");
+        }
+
+        [Fact]
+        public void ShouldReturnRiddleWithLettersIfRiddleTypeIsString()
+        {
+            string RiddleRegex = "^[a-zA-Z]{4}$";
+
+            var riddleProvider = new RiddleProviderFactory("string", 4, "").CreateRiddleProvider();
+            var game = new Game(riddleProvider);
+
+            Assert.True(Regex.Match(game.Riddle, RiddleRegex).Success, $"Riddle {game.Riddle} does not match regex {RiddleRegex}");
+        }
+
+        [Fact]
+        public void ShouldReturnRiddleWithStringIfRiddleTypeIsRealWord()
+        {
+            string RiddleRegex = "^[a-zA-Z]{4}$";
+            string connectionString = "Data Source=(localdb)\\URLessDB;Initial Catalog=BullsAndCowsGame;Integrated Security=True;Connect Timeout=30;Encrypt=False;";
+            
+            var riddleProvider = new RiddleProviderFactory("realWord", 4, connectionString).CreateRiddleProvider();
+            var game = new Game(riddleProvider);
+
+            Assert.True(Regex.Match(game.Riddle, RiddleRegex).Success, $"Riddle {game.Riddle} does not match regex {RiddleRegex}");
+        }
+
+        [Fact]
+        public void ShouldReturnStringRiddleProviderIfRiddleTypeIsString()
+        {
+            var riddleProvider = new RiddleProviderFactory("string", 4, "").CreateRiddleProvider();
+
+            Assert.IsType<StringRiddleProvider>(riddleProvider);
+        }
+
+        [Fact]
+        public void ShouldReturnRealWordRiddleProviderIfRiddleTypeIsRealWord()
+        {
+            var riddleProvider = new RiddleProviderFactory("realWord", 4, "").CreateRiddleProvider();
+
+            Assert.IsType<RealWordRiddleProvider>(riddleProvider);
         }
     }
 }

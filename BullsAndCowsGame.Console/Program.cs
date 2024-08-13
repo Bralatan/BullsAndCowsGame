@@ -10,7 +10,7 @@ class Program
     {
         var config = ConfigLoader.LoadConfig("..\\..\\..\\..\\BullsAndCowsGame.Core\\Config\\config.json");
 
-        IRiddleProvider riddleProvider = new RiddleProviderFactory(config.RiddleType, config.RiddleLength).CreateRiddleProvider();
+        IRiddleProvider riddleProvider = new RiddleProviderFactory(config.RiddleType, config.RiddleLength, config.ConnectionString).CreateRiddleProvider();
 
 
         Game game = new Game(riddleProvider);
@@ -18,6 +18,7 @@ class Program
         while (true) 
         {
             Console.Write("Enter your guess: ");
+            Console.Write($"Your guess: {game.Riddle}");
             string guess = Console.ReadLine();
 
             try

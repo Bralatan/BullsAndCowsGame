@@ -13,11 +13,13 @@ namespace BullsAndCowsGame.Core.Factories
     {
         private int _length;
         private string _type;
+        private string _connectionString;
 
-        public RiddleProviderFactory(string type, int length)
+        public RiddleProviderFactory(string type, int length, string connectionString)
         {
             _type = type;
             _length = length;
+            _connectionString = connectionString;
         }
 
         public IRiddleProvider CreateRiddleProvider()
@@ -26,6 +28,7 @@ namespace BullsAndCowsGame.Core.Factories
             {
                 "number" => new NumberRiddleProvider(_length),
                 "string" => new StringRiddleProvider(_length),
+                "realWord" => new RealWordRiddleProvider(_connectionString),
                 _ => throw new ArgumentException()
             };
         }
